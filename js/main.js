@@ -74,17 +74,17 @@
       const data = new FormData(form);
       const cfg = window.RUTVA_CONFIG || {};
       const email = cfg.companyEmail || "rutvamultiservices@gmail.com";
-      const phone = cfg.whatsappNumber || "917201946436";
 
       const bObj = (window.RUTVA_BUSINESSES || []).find(function (x) {
         return x.id === data.get("business");
       });
       const bName = bObj ? bObj.name : (data.get("business") || "General Enquiry");
       const submitter = e.submitter ? e.submitter.value : "email";
+      const targetPhone = (bObj && bObj.whatsapp) ? bObj.whatsapp : (cfg.whatsappNumber || "917069300077");
 
       if (submitter === "whatsapp") {
         const waText = `*Enquiry for ${bName} via Website*%0A%0A*Name:* ${encodeURIComponent(data.get("name"))}%0A*Phone:* ${encodeURIComponent(data.get("phone"))}%0A*Email:* ${encodeURIComponent(data.get("email") || "Not provided")}%0A*Business:* ${encodeURIComponent(bName)}%0A*Message:* ${encodeURIComponent(data.get("message"))}`;
-        window.open(`https://wa.me/${phone}?text=${waText}`, "_blank");
+        window.open(`https://wa.me/${targetPhone}?text=${waText}`, "_blank");
         const fb = document.getElementById("formFeedback");
         if (fb) {
           fb.className = "alert alert-success mt-3 py-2 px-3 small";
@@ -106,60 +106,50 @@
   }
 
   // ==========================================
-  // DYNAMIC ECOSYSTEM & ORGANIZATION CHART
+  // DYNAMIC ECOSYSTEM & ORGANIZATION CHART (B1 to B8 in Sequence)
   // ==========================================
   const treeWrapper = document.getElementById("treeCanvasWrapper");
   if (treeWrapper && window.RUTVA_BUSINESSES) {
     const nodeMapping = {
-      "banking-point-24": { code: "B1", group: "finance", col: "right" },
-      "my-fashion-centre": { code: "B2", group: "creative", col: "right" },
-      "rutva-resin-art": { code: "B3", group: "creative", col: "right" },
-      "digital-print-hub": { code: "B4", group: "creative", col: "center" },
-      "tours-travels": { code: "B5", group: "services", col: "center" },
-      "delivery-partner": { code: "B6", group: "services", col: "left" },
-      "financial-services": { code: "B7", group: "finance", col: "left" },
-      "radhe-krishna-food-zone": { code: "B8", group: "services", col: "left" }
+      "banking-point-24": { code: "B1", group: "finance" },
+      "my-fashion-centre": { code: "B2", group: "creative" },
+      "rutva-resin-art": { code: "B3", group: "creative" },
+      "digital-print-hub": { code: "B4", group: "creative" },
+      "tours-travels": { code: "B5", group: "services" },
+      "delivery-partner": { code: "B6", group: "services" },
+      "financial-services": { code: "B7", group: "finance" },
+      "radhe-krishna-food-zone": { code: "B8", group: "services" }
     };
 
-    const colLeft = document.getElementById("treeColLeft");
-    const colCenter = document.getElementById("treeColCenter");
-    const colRight = document.getElementById("treeColRight");
+    const childGrid = document.getElementById("childNodesGrid");
 
     function renderTreeCard(b) {
-      const meta = nodeMapping[b.id] || { code: "B", group: "services", col: "center" };
+      const meta = nodeMapping[b.id] || { code: "B", group: "services" };
       const targetUrl = `${businessesPrefix}${b.id}.html`;
       return `
-      <div class="tree-card" id="tree-node-${b.id}" data-id="${b.id}" data-group="${meta.group}" role="button" tabindex="0" onclick="window.location.href='${targetUrl}'" title="Click to view ${b.name}">
-        <div class="card-pin"></div>
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="badge-code">${meta.code}</span>
-          <span class="badge bg-light text-primary text-truncate fw-semibold" style="max-width:150px;font-size:0.75rem;">${b.category}</span>
-        </div>
-        <div class="d-flex align-items-center gap-2 mb-2">
-          <img src="${assetsPrefix}assets/images/${b.logo}" alt="${b.name} Logo" class="tree-card-logo">
-          <h4 class="h6 mb-0 fw-bold text-navy text-truncate">${b.name}</h4>
-        </div>
-        <p class="small text-muted mb-3 lh-sm" style="min-height:36px;">${b.short}</p>
-        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-          <span class="text-link small fw-bold">Explore details <i class="bi bi-arrow-right ms-1"></i></span>
-          <span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1 small">Open <i class="bi bi-box-arrow-up-right ms-1"></i></span>
+      <div class="col-lg-4 col-md-6 d-flex align-items-stretch tree-col-item" data-group="${meta.group}">
+        <div class="tree-card w-100" id="tree-node-${b.id}" data-id="${b.id}" data-group="${meta.group}" role="button" tabindex="0" onclick="window.location.href='${targetUrl}'" title="Click to view ${b.name}">
+          <div class="card-pin"></div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge-code">${meta.code}</span>
+            <span class="badge bg-light text-primary text-truncate fw-semibold" style="max-width:150px;font-size:0.75rem;">${b.category}</span>
+          </div>
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <img src="${assetsPrefix}assets/images/${b.logo}" alt="${b.name} Logo" class="tree-card-logo">
+            <h4 class="h6 mb-0 fw-bold text-navy text-truncate">${b.name}</h4>
+          </div>
+          <p class="small text-muted mb-3 lh-sm" style="min-height:36px;">${b.short}</p>
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+            <span class="text-link small fw-bold">Explore details <i class="bi bi-arrow-right ms-1"></i></span>
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1 small">Open <i class="bi bi-box-arrow-up-right ms-1"></i></span>
+          </div>
         </div>
       </div>`;
     }
 
-    // Populate columns
-    if (colLeft && colCenter && colRight) {
-      colLeft.innerHTML = "";
-      colCenter.innerHTML = "";
-      colRight.innerHTML = "";
-
-      window.RUTVA_BUSINESSES.forEach(function (b) {
-        const meta = nodeMapping[b.id];
-        const cardHtml = renderTreeCard(b);
-        if (meta.col === "left") colLeft.innerHTML += cardHtml;
-        else if (meta.col === "center") colCenter.innerHTML += cardHtml;
-        else if (meta.col === "right") colRight.innerHTML += cardHtml;
-      });
+    // Populate child nodes sequentially (B1, B2, B3, B4, B5, B6, B7, B8)
+    if (childGrid) {
+      childGrid.innerHTML = window.RUTVA_BUSINESSES.map(renderTreeCard).join("");
     }
 
     // SVG Line Drawing Logic
@@ -180,56 +170,32 @@
 
       const pCenterX = pRect.left + pRect.width / 2 - wRect.left;
       const pBottomY = pRect.bottom - wRect.top;
-      const pLeftX = pRect.left - wRect.left;
-      const pRightX = pRect.right - wRect.left;
-      const pCenterY = pRect.top + pRect.height / 2 - wRect.top;
-
-      const isDesktop = window.innerWidth >= 992;
 
       window.RUTVA_BUSINESSES.forEach(function (b) {
         const cardEl = document.getElementById(`tree-node-${b.id}`);
-        if (!cardEl || cardEl.classList.contains("filtered-out")) return;
+        const colItem = cardEl ? cardEl.closest(".tree-col-item") : null;
+        if (!cardEl || (colItem && colItem.classList.contains("filtered-out"))) return;
 
         const cRect = cardEl.getBoundingClientRect();
-        const meta = nodeMapping[b.id] || { col: "center" };
+        const endX = cRect.left + cRect.width / 2 - wRect.left;
+        const endY = cRect.top - wRect.top;
 
         let startX = pCenterX;
         let startY = pBottomY;
-        let endX = cRect.left + cRect.width / 2 - wRect.left;
-        let endY = cRect.top - wRect.top;
-        let d = "";
+        const diffX = endX - pCenterX;
 
-        if (isDesktop) {
-          if (meta.col === "left") {
-            startX = pLeftX + 6;
-            startY = pCenterY + (meta.code === "B6" ? -15 : meta.code === "B7" ? 10 : 30);
-            endX = cRect.right - wRect.left;
-            endY = cRect.top + cRect.height / 2 - wRect.top;
-            const midX = (startX + endX) / 2;
-            d = `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`;
-          } else if (meta.col === "right") {
-            startX = pRightX - 6;
-            startY = pCenterY + (meta.code === "B1" ? -15 : meta.code === "B2" ? 10 : 30);
-            endX = cRect.left - wRect.left;
-            endY = cRect.top + cRect.height / 2 - wRect.top;
-            const midX = (startX + endX) / 2;
-            d = `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`;
-          } else {
-            startX = pCenterX;
-            startY = pBottomY;
-            endX = cRect.left + cRect.width / 2 - wRect.left;
-            endY = cRect.top - wRect.top;
-            const midY = (startY + endY) / 2;
-            d = `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`;
-          }
+        if (diffX < -50) {
+          startX = pCenterX - 50;
+        } else if (diffX > 50) {
+          startX = pCenterX + 50;
         } else {
           startX = pCenterX;
-          startY = pBottomY;
-          endX = cRect.left + cRect.width / 2 - wRect.left;
-          endY = cRect.top - wRect.top;
-          const deltaY = Math.max(25, (endY - startY) * 0.4);
-          d = `M ${startX} ${startY} C ${startX} ${startY + deltaY}, ${endX} ${endY - deltaY}, ${endX} ${endY}`;
         }
+
+        const deltaY = Math.max(30, endY - startY);
+        const cpY1 = startY + deltaY * 0.45;
+        const cpY2 = endY - deltaY * 0.35;
+        const d = `M ${startX} ${startY} C ${startX} ${cpY1}, ${endX} ${cpY2}, ${endX} ${endY}`;
 
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", d);
@@ -278,18 +244,22 @@
     // Filter Buttons logic
     document.querySelectorAll(".filter-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active", "btn-primary"));
-        document.querySelectorAll(".filter-btn").forEach(b => b.classList.add("btn-outline-secondary"));
+        document.querySelectorAll(".filter-btn").forEach(function (b) {
+          b.classList.remove("active", "btn-primary");
+          b.classList.add("btn-outline-secondary");
+        });
         btn.classList.add("active", "btn-primary");
         btn.classList.remove("btn-outline-secondary");
 
         const filter = btn.getAttribute("data-filter");
-        document.querySelectorAll(".tree-card").forEach(function (c) {
-          const group = c.getAttribute("data-group");
+        document.querySelectorAll(".tree-col-item").forEach(function (item) {
+          const group = item.getAttribute("data-group");
           if (filter === "all" || group === filter) {
-            c.classList.remove("filtered-out");
+            item.classList.remove("filtered-out");
+            item.style.display = "";
           } else {
-            c.classList.add("filtered-out");
+            item.classList.add("filtered-out");
+            item.style.display = "none";
           }
         });
         setTimeout(drawTreeLines, 50);
